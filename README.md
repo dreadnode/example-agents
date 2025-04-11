@@ -2,13 +2,26 @@
 
 This repo contains a variety of example agents to use with the Dreadnode platform.
 
+## Setup
+
+All examples share the same project and dependencies, you setup the virtual environment with uv:
+
+```bash
+export UV_INDEX_DREADNODE_PYPI_PASSWORD=<platform-api-key>
+
+uv sync
+```
+
+*`UV_INDEX_DREADNODE_PYPI_PASSWORD` is currently required to install the
+`dreadnode` package from the private PyPi repository*
+
 ## Dangerous Capabilities
 
 Based on [research](https://deepmind.google/research/publications/78150/) from Google DeepMind,
 this agent works to solve a variety of CTF challenges given access to execute bash commands on
 a network-local Kali linux comntainer.
 
-```
+```bash
 uv run -m dangerous_capabilities --help
 ```
 

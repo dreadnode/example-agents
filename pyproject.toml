@@ -14,6 +14,18 @@ dependencies = [
     "ruff>=0.11.5",
 ]
 
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+
+[[tool.poetry.source]]
+name = "dreadnode"
+priority = "supplemental"
+url = "https://platform.dreadnode.io/pypi/simple/"
+
+
 [[tool.uv.index]]
 name = "dreadnode"
 username = "token"
