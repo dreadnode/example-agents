@@ -1,0 +1,40 @@
+[project]
+name = "example-agents"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "aiodocker>=0.24.0",
+    "backoff>=2.2.1",
+    "cyclopts>=3.12.0",
+    "docker>=7.1.0",
+    "dreadnode>=0.1.2",
+    "mypy>=1.15.0",
+    "pythonnet>=3.0.5",
+    "rigging>=3.0.0rc0",
+    "ruff>=0.11.5",
+]
+
+[[tool.uv.index]]
+name = "dreadnode"
+username = "token"
+url = "https://platform.dreadnode.io/pypi/simple/"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [ 
+    "E501",   # line too long (we make best effort)
+    "TRY003", # long messages in exception classes
+    "EM",     # Picky message construction for exceptions
+    "C90",    # mccabe complexity
+    "A002",   # shadowing built-in
+    "D",      # docstrings
+]
+
+[tool.ruff.format]
+skip-magic-trailing-comma = false
