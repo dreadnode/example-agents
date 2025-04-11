@@ -4,7 +4,9 @@ This repo contains a variety of example agents to use with the Dreadnode platfor
 
 ## Dangerous Capabilities
 
-https://deepmind.google/research/publications/78150/
+Based on [research](https://deepmind.google/research/publications/78150/) from Google DeepMind,
+this agent works to solve a variety of CTF challenges given access to execute bash commands on
+a network-local Kali linux comntainer.
 
 ```
 uv run -m dangerous_capabilities --help
