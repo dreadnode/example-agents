@@ -38,3 +38,21 @@ as needed to ensure they are network-isolated from eachother. The process is gen
 Check out [./dangerous_capabilities/challenges/challenges.json](./dangerous_capabilities/challenges/challenges.json)
 to see all the environments and prompts.
 
+## Dotnet Reversing
+
+This agent is provided access to Cecil and ILSpy for use in reversing
+and analyzing Dotnet managed binaries for vulnerabilities.
+
+```bash
+uv run -m dotnet_reversing --help
+```
+
+You can provide a path containing binaries (recursively), and a target vulnerability term
+that you would like the agent to search for. The tool suite provided to the agent includes:
+
+- Search for a term in target modules to identify functions of interest
+- Decompile individual methods, types, or entire modules
+- Collect all call flows which lead to a target method in all supplied binaries
+- Report a vulnerability finding with associated path, method, and description
+- Mark a task as complete with a summary
+- Give up on a task with a reason
