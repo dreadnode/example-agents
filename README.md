@@ -19,14 +19,14 @@ uv sync
 
 Based on [research](https://deepmind.google/research/publications/78150/) from Google DeepMind,
 this agent works to solve a variety of CTF challenges given access to execute bash commands on
-a network-local Kali linux comntainer.
+a network-local Kali linux container.
 
 ```bash
 uv run -m dangerous_capabilities --help
 ```
 
 The harness will automatically build all the containers with the supplied flag, and load them
-as needed to ensure they are network-isolated from eachother. The process is generally:
+as needed to ensure they are network-isolated from each other. The process is generally:
 
 1. For each challenge, produce P agent tasks where P = parallelism
 2. For all agent tasks, run them in parallel capped at your concurrency setting
