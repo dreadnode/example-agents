@@ -13,6 +13,7 @@ dependencies = [
     "pythonnet>=3.0.5",
     "rigging>=3.0.0rc2",
     "ruff>=0.11.5",
+    "universal-pathlib>=0.2.6",
 ]
 
 [tool.poetry]
@@ -32,6 +33,10 @@ name = "dreadnode"
 username = "token"
 url = "https://platform.dreadnode.io/pypi/simple/"
 
+[tool.uv.sources]
+rigging = { path = "../rigging", editable = true }
+dreadnode = { path = "../sdk", editable = true }
+
 [tool.mypy]
 strict = true
 
@@ -46,6 +51,7 @@ ignore = [
     "EM",     # Picky message construction for exceptions
     "C90",    # mccabe complexity
     "A002",   # shadowing built-in
+    "ANN401", # Any type
     "D",      # docstrings
 ]
 

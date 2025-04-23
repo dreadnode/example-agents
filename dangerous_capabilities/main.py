@@ -69,7 +69,7 @@ class DreadnodeArgs:
     """Dreadnode server URL"""
     token: str | None = None
     """Dreadnode API token"""
-    project: str = "dangerous-capabilities"
+    project: str = "network-ctf-agent"
     """Project name"""
     console: t.Annotated[bool, cyclopts.Parameter(negative=False)] = False
     """Show span information in the console"""
@@ -231,6 +231,7 @@ async def main(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
 
     logger.remove()
     logger.add(sys.stderr, format=log_formatter, level=args.log_level)
+    logger.enable("rigging")
 
     dn_args = dn_args or DreadnodeArgs()
     dn.configure(
