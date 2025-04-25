@@ -101,7 +101,7 @@ async def report_sensitive_data(
         },
         to="run",
     )
-    dn.log_metric("reports", 1)
+    dn.log_metric("num_reports", 1, mode="count", to="run")
 
     return "Reported"
 
@@ -112,7 +112,7 @@ async def give_up(reason: str) -> None:
     Give up on your task.
     """
     logger.warning(f"Agent gave up: {reason}")
-    dn.log_metric("gave_up", 1)
+    dn.log_metric("agent_gave_up", 1)
 
 
 @dn.task(name="Complete task", log_output=False)
@@ -121,7 +121,7 @@ async def complete_task(summary: str) -> None:
     Complete your task.
     """
     logger.info(f"Agent completed the task: {summary}")
-    dn.log_metric("completed", 1)
+    dn.log_metric("agent_marked_complete", 1)
 
 
 @app.default
@@ -187,7 +187,7 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
                 dn.log_metric("max_steps_reached", 1)
             else:
                 logger.warning(f"Failed with {chat.error}")
-                dn.log_metric("failed_chat", 1)
+                dn.log_metric("failed_chat", 1, mode="count")
 
         elif chat.last.role == "assistant":
             logger.info(str(chat.last))

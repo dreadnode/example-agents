@@ -139,7 +139,7 @@ class DotnetReversing:
     @cached_property
     def tools(self) -> list[t.Callable[..., t.Any]]:
         return [
-            rg.tool(catch=True)(dn.task()(func))  # type: ignore [arg-type]
+            rg.tool(catch=True)(dn.task()(func))
             for func in (
                 self.decompile_module,
                 self.decompile_type,

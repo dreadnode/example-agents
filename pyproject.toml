@@ -7,11 +7,11 @@ dependencies = [
     "backoff>=2.2.1",
     "cyclopts>=3.12.0",
     "docker>=7.1.0",
-    "dreadnode>=0.1.2",
+    "dreadnode>=1.0.0rc1",
     "ipykernel>=6.29.5",
     "mypy>=1.15.0",
     "pythonnet>=3.0.5",
-    "rigging>=3.0.0rc2",
+    "rigging>=3.0.0rc3",
     "ruff>=0.11.5",
     "universal-pathlib>=0.2.6",
 ]
@@ -21,21 +21,6 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.14"
-
-[[tool.poetry.source]]
-name = "dreadnode"
-priority = "supplemental"
-url = "https://platform.dreadnode.io/pypi/simple/"
-
-
-[[tool.uv.index]]
-name = "dreadnode"
-username = "token"
-url = "https://platform.dreadnode.io/pypi/simple/"
-
-[tool.uv.sources]
-rigging = { path = "../rigging", editable = true }
-dreadnode = { path = "../sdk", editable = true }
 
 [tool.mypy]
 strict = true

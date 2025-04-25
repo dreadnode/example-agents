@@ -1,8 +1,11 @@
+import io
 import sys
 import typing as t
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+import aiohttp
 import cyclopts
 import dreadnode as dn
 import litellm
@@ -24,9 +27,11 @@ app = cyclopts.App()
 class Args:
     model: str
     """Model to use for inference"""
-    path: Path
-    """Directory of binaries to analyze"""
-    task: str = "find vulnerabilities"
+    path: str
+    """Directory of binaries to analyze or other supported identifier"""
+    nuget: bool = False
+    """Treat the path as a NuGet package id"""
+    task: str = "Find critical vulnerabilities"
     """Task presented to the agent"""
     max_steps: int = 50
     """Maximum number of iterations per agent"""
@@ -57,18 +62,28 @@ def log_formatter(record: "LogRecord") -> str:
     )
 
 
-@dn.task(name="Report finding")
+@dn.task(name="Report finding", log_inputs=False, log_output=False)
 async def report_finding(file: str, method: str, content: str) -> str:
     """
     Report a finding regarding areas or interest or vulnerabilities.
     """
     logger.success(f"Reporting finding for {file} ({method}):")
-    logger.success(content)
-    dn.log_metric("reports", 1)
+    logger.info(content)
+    logger.info("---")
+    dn.log_output(
+        "finding",
+        {
+            "file": file,
+            "method": method,
+            "content": content,
+        },
+        to="run",
+    )
+    dn.log_metric("num_reports", 1, mode="count", to="run")
     return "Reported"
 
 
-@dn.task(name="Give up")
+@dn.task(name="Give up", log_output=False)
 async def give_up(reason: str) -> None:
     """
     Give up on your task.
@@ -77,13 +92,54 @@ async def give_up(reason: str) -> None:
     dn.log_metric("gave_up", 1)
 
 
-@dn.task(name="Complete task")
+@dn.task(name="Complete task", log_output=False)
 async def complete_task(summary: str) -> None:
     """
     Complete the task.
     """
     logger.info(f"Agent completed the task: {summary}")
-    dn.log_metric("completed", 1)
+    dn.log_metric("marked_task_completed", 1)
+
+
+@dn.task(name="Download NuGet package")
+async def download_nuget_package(package: str) -> Path:
+    """
+    Download a NuGet package and return the path to the package.
+    """
+
+    package = package.lower()
+    logger.info(f"Downloading NuGet package {package}...")
+
+    async with aiohttp.ClientSession() as client:
+        # Get the versions
+        async with client.get(
+            f"https://api.nuget.org/v3-flatcontainer/{package}/index.json",
+        ) as response:
+            if response.status != 200:  # noqa: PLR2004
+                raise RuntimeError(f"Failed to get package {package} from NuGet")
+
+            data = await response.json()
+            versions = data["versions"]
+            latest_version = versions[-1]
+            logger.info(f" |- Latest version is {latest_version}")
+
+        # Download the nupkg and extract it
+        async with client.get(
+            f"https://api.nuget.org/v3-flatcontainer/{package}/{latest_version}/{package}.{latest_version}.nupkg",
+        ) as response:
+            if response.status != 200:  # noqa: PLR2004
+                raise RuntimeError(f"Failed to download package {package} from NuGet")
+
+            output_dir = Path(f".nuget/{package}_{latest_version}")
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            data = await response.read()
+            with io.BytesIO(data) as buffer, zipfile.ZipFile(buffer) as zip_file:
+                zip_file.extractall(output_dir)
+
+            logger.info(f" |- Extracted to {output_dir}")
+
+    return output_dir
 
 
 @app.default
@@ -107,16 +163,22 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
     with dn.run(tags=[args.task]), dn.task_span("Agent"):
         dn.log_params(
             model=args.model,
+            path=str(args.path),
+            nuget=args.nuget,
             task=args.task,
-            directory=str(args.path),
             max_steps=args.max_steps,
         )
 
-        reversing = DotnetReversing.from_path(args.path)
+        path = await download_nuget_package(args.path) if args.nuget else Path(args.path)
+        reversing = DotnetReversing.from_path(path)
 
         logger.info(f"Analayzing the following binaries with the goal: '{args.task}':")
         for binary in reversing.binaries:
             logger.info(f"  |- {binary}")
+
+        dn.log_inputs(
+            binaries=[str(b) for b in reversing.binaries],
+        )
 
         binary_list = "\n".join(reversing.binaries)
 
@@ -124,9 +186,8 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
         chat = (
             await generator.chat(
                 f"""\
-            Analyze the following binaries for vulnerabilities and resolve the task below using all
-            the tools available to you. Provide a report for all interesting findings you discover
-            while analyzing the binaries.
+            Analyze the following binaries and resolve the task below using all the tools available to you.
+            Provide a report for all interesting findings you discover while performing the task.
 
             <task>
             {args.task}
@@ -157,7 +218,11 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
                 dn.log_metric("max_steps_reached", 1)
             else:
                 logger.warning(f"Failed with {chat.error}")
-                dn.log_metric("failed_chat", 1)
+                dn.log_metric("inference_failed", 1)
+
+        elif chat.last.role == "assistant":
+            dn.log_output("last_message", chat.last.content)
+            logger.info(str(chat.last))
 
     logger.info("Done.")
 
