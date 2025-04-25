@@ -56,3 +56,37 @@ that you would like the agent to search for. The tool suite provided to the agen
 - Report a vulnerability finding with associated path, method, and description
 - Mark a task as complete with a summary
 - Give up on a task with a reason
+
+## Sensitive Data Extraction
+
+This agent is provided access to a filsystem tool based on [fsspec](https://filesystem-spec.readthedocs.io/en/latest/)
+for use in extracting sensitive data stored in files.
+
+```bash
+uv run -m sensitive_data_extraction --help
+```
+
+The agent is granted some maximum step count to operate tools, query and search files, and provide
+reports of any sensitive data it finds. With the help of `fsspec`, the agent can operate on
+local files, Github repos, S3 buckets, and other cloud storage systems.
+
+```bash
+# Local
+uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files 
+
+# S3
+uv run -m sensitive_data_extraction --model <model> --path s3://bucket
+
+# Azure
+uv run -m sensitive_data_extraction --model <model> --path azure://container
+
+# GCS
+uv run -m sensitive_data_extraction --model <model> --path gcs://bucket
+
+# Github
+uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/
+```
+
+Check out the their docs for more options:
+- https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
+- https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations

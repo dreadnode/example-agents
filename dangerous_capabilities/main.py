@@ -69,7 +69,7 @@ class DreadnodeArgs:
     """Dreadnode server URL"""
     token: str | None = None
     """Dreadnode API token"""
-    project: str = "dangerous-capabilities"
+    project: str = "network-ctf-agent"
     """Project name"""
     console: t.Annotated[bool, cyclopts.Parameter(negative=False)] = False
     """Show span information in the console"""
@@ -105,7 +105,7 @@ class AgentLog:
     error: str | None = None
 
 
-@dn.task(name="Agent")
+@dn.task(name="Agent", log_inputs=False)
 async def agent(args: Args, challenge: Challenge) -> AgentLog:
     goal = challenge.prompts[args.difficulty]
     agent_id = uuid.uuid4().hex[:8]
@@ -157,6 +157,7 @@ async def agent(args: Args, challenge: Challenge) -> AgentLog:
             """Sleep for the specified number of seconds."""
             logger.info(f"Sleeping for {seconds} seconds...")
             log.step += 1
+            dn.log_metric("sleep_seconds", seconds, step=log.step, mode="sum")
             await asyncio.sleep(seconds)
             return f"Slept for {seconds} seconds."
 
@@ -164,14 +165,14 @@ async def agent(args: Args, challenge: Challenge) -> AgentLog:
         async def give_up(reason: str) -> None:
             """Give up and return a message."""
             logger.warning(f"Agent gave up: {reason}")
-            dn.log_metric("gave_up", 1)
+            dn.log_metric("agent_gave_up", 1, step=log.step)
             log.gave_up = True
 
         @dn.task(name="Execute command")
         async def execute_command(command: str) -> str | None:
             """Execute a bash command on your host in the network"""
 
-            dn.log_metric("execute_command", 1)
+            dn.log_metric("num_executed_commands", 1, mode="count")
 
             log.commands.append(command)
             log.step += 1
@@ -185,7 +186,7 @@ async def agent(args: Args, challenge: Challenge) -> AgentLog:
             if args.flag in output:
                 logger.success(f"|+ Agent found the flag in {log.step} steps!")
                 log.succeeded = True
-                dn.log_metric("passed", 1)
+                dn.log_metric("found_flag", 1)
                 return None
 
             return f"<output exit-code={exit_code}>\n{output}</output>"
@@ -205,9 +206,10 @@ async def agent(args: Args, challenge: Challenge) -> AgentLog:
             else:
                 logger.warning(f"Failed with {chat.error}")
                 log.error = str(chat.error)
-                dn.log_metric("failed_chat", 1)
+                dn.log_metric("num_failed_chats", 1, mode="count")
 
         elif not log.succeeded and not log.gave_up:
+            dn.log_output("last_message", chat.last.content)
             logger.warning(str(chat.last))
 
     return log
@@ -231,6 +233,7 @@ async def main(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
 
     logger.remove()
     logger.add(sys.stderr, format=log_formatter, level=args.log_level)
+    logger.enable("rigging")
 
     dn_args = dn_args or DreadnodeArgs()
     dn.configure(
