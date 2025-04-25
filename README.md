@@ -57,6 +57,17 @@ that you would like the agent to search for. The tool suite provided to the agen
 - Mark a task as complete with a summary
 - Give up on a task with a reason
 
+You can also specify the path as a Nuget package identifier and pass `--nuget` to the agent. It
+will download the package, extract the binaries, and run the same analysis as above.
+
+```bash
+# Local
+uv run -m dotnet_reversing --model <model> --path /path/to/local/binaries
+
+# Nuget
+uv run -m dotnet_reversing --model <model> --path <nuget-package-id> --nuget
+```
+
 ## Sensitive Data Extraction
 
 This agent is provided access to a filsystem tool based on [fsspec](https://filesystem-spec.readthedocs.io/en/latest/)
