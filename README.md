@@ -85,10 +85,6 @@ local files, Github repos, S3 buckets, and other cloud storage systems.
 # Local
 uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files
 
-# Optional: Pass a GH token
-$ gh auth token
-uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files --github-token <gh-auth-token>
-
 # S3
 uv run -m sensitive_data_extraction --model <model> --path s3://bucket
 
@@ -100,6 +96,10 @@ uv run -m sensitive_data_extraction --model <model> --path gcs://bucket
 
 # Github
 uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/
+
+# Optional: Pass a GH token
+$ gh auth token
+uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/ --github-token <gh-auth-token>
 ```
 
 Check out the their docs for more options:
