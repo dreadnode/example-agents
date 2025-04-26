@@ -140,7 +140,7 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
         token=dn_args.token,
         project=dn_args.project,
         console=dn_args.console,
-        send_to_logfire=True,
+        send_to_logfire=False,
     )
 
     with dn.run(), dn.task_span("Agent"):
