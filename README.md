@@ -83,7 +83,11 @@ local files, Github repos, S3 buckets, and other cloud storage systems.
 
 ```bash
 # Local
-uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files 
+uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files
+
+# Optional: Pass a GH token
+$ gh auth token
+uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files --github-token <gh-auth-token>
 
 # S3
 uv run -m sensitive_data_extraction --model <model> --path s3://bucket
