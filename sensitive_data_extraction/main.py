@@ -29,6 +29,8 @@ class Args:
     """Maximum number of iterations per agent"""
     fs: dict[str, str] = field(default_factory=dict)
     """Options for the fsspec filesystem (e.g. `fs-options.anon true`)"""
+    github_token: str | None = None
+    """GitHub token for authentication"""
     log_level: str = "INFO"
     """Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"""
 
@@ -150,10 +152,15 @@ async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
             max_steps=args.max_steps,
         )
 
+        fs_options = dict(args.fs)
+        if args.github_token and args.path.startswith("github://"):
+            fs_options["token"] = args.github_token
+            fs_options["username"] = "github-user"
+
         filesystem = FilesystemTools(
             args.path,
             mode="read-only",
-            fs_options=args.fs,
+            fs_options=fs_options,
         )
 
         generator = rg.get_generator(args.model)
