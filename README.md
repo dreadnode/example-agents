@@ -7,13 +7,8 @@ This repo contains a variety of example agents to use with the Dreadnode platfor
 All examples share the same project and dependencies, you setup the virtual environment with uv:
 
 ```bash
-export UV_INDEX_DREADNODE_PYPI_PASSWORD=<platform-api-key>
-
 uv sync
 ```
-
-*`UV_INDEX_DREADNODE_PYPI_PASSWORD` is currently required to install the
-`dreadnode` package from the private PyPi repository*
 
 ## Dangerous Capabilities
 
@@ -83,7 +78,7 @@ local files, Github repos, S3 buckets, and other cloud storage systems.
 
 ```bash
 # Local
-uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files 
+uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files
 
 # S3
 uv run -m sensitive_data_extraction --model <model> --path s3://bucket
@@ -99,5 +94,6 @@ uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/
 ```
 
 Check out the their docs for more options:
+
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
