@@ -101,3 +101,36 @@ uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/
 Check out the their docs for more options:
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
+
+## SAST Vulnerability Scanning
+
+This agent is designed to perform static code analysis to identify security vulnerabilities in source code. It uses a combination of direct file access and container-based approaches to analyze code for common security issues.
+
+```bash
+uv run -m sast_scanning --help
+```
+
+The agent systematically examines codebases using either direct file access or an isolated container environment. It can:
+
+- Identify multiple vulnerability types including SQL injection, XSS, command injection, and more
+- Execute targeted analysis commands to search through source files
+- Report detailed findings with vulnerability location, type, and severity
+- Support various programming languages through configurable extensions
+- Operate in two modes: "direct" (filesystem access) or "container" (isolated analysis)
+- Challenges and vulnerability patterns are defined in YAML configuration files, allowing for flexible targeting of specific security issues across different codebases.
+
+```bash
+# Run in direct mode (default)
+uv run -m sast_scanning --model <model> --mode direct
+
+# Run in container mode (isolated environment)
+uv run -m sast_scanning --model <model> --mode container
+
+# Run a specific challenge
+uv run -m sast_scanning --model <model> --mode container --challenge <challenge-name>
+
+# Customize analysis parameters
+uv run -m sast_scanning --model <model> --max-steps 50 --timeout 60
+```
+
+The agent reports detailed metrics on vulnerability coverage and provides comprehensive findings to help security teams prioritize code fixes.

@@ -1,0 +1,68 @@
+@import 'compass';
+$desktop : 769px;
+$tablet : 768px;
+$mobile : 736px;
+body{
+	.extendedwopts-show{
+		display: none;
+	}
+	.widgetopts-hide_title{
+		.widget-title{
+			display: none;
+		}
+	}
+
+	//alignment
+	.extendedwopts-md-right{
+		text-align: right;
+	}
+	.extendedwopts-md-left{
+		text-align: left;
+	}
+	.extendedwopts-md-center{
+		text-align: center;
+	}
+	.extendedwopts-md-justify{
+		text-align: justify;
+	}
+	@media screen and (min-width: $desktop) {
+		.extendedwopts-hide.extendedwopts-desktop{
+			display: none !important;
+		}
+		.extendedwopts-show.extendedwopts-desktop{
+			display: block;
+		}
+		.widget.clearfix-desktop{
+			clear: both;
+		}
+	}
+	@media screen and (max-width: $tablet)
+	and (min-width: $mobile + 1) {
+		.extendedwopts-hide.extendedwopts-tablet{
+			display: none !important;
+		}
+		.extendedwopts-show.extendedwopts-tablet{
+			display: block;
+		}
+		.widget.clearfix-desktop{
+			clear: none;
+		}
+		.widget.clearfix-tablet{
+			clear: both;
+		}
+	}
+	@media screen and (max-width: $mobile) {
+		.extendedwopts-hide.extendedwopts-mobile{
+			display: none !important;
+		}
+		.extendedwopts-show.extendedwopts-mobile{
+			display: block;
+		}
+		.widget.clearfix-desktop, .widget.clearfix-tablet{
+			clear: none;
+		}
+		.widget.clearfix-mobile{
+			clear: both;
+		}
+	}
+}

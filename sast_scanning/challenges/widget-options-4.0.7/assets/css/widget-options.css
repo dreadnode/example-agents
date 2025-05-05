@@ -1,0 +1,110 @@
+body .extendedwopts-show {
+  display: none;
+}
+body .widgetopts-hide_title .widget-title {
+  display: none;
+}
+body .extendedwopts-md-right {
+  text-align: right;
+}
+body .extendedwopts-md-left {
+  text-align: left;
+}
+body .extendedwopts-md-center {
+  text-align: center;
+}
+body .extendedwopts-md-justify {
+  text-align: justify;
+}
+@media screen and (min-width: 1181px) {
+  body .extendedwopts-hide.extendedwopts-desktop {
+    display: none !important;
+  }
+  body .extendedwopts-show.extendedwopts-desktop {
+    display: block;
+  }
+  body .widget.clearfix-desktop {
+    clear: both;
+    float: none !important;
+  }
+}
+@media screen and (max-width: 1024px) and (orientation: Portrait) {
+  body .extendedwopts-hide.extendedwopts-tablet {
+    display: none !important;
+  }
+  body .extendedwopts-show.extendedwopts-tablet {
+    display: block;
+  }
+  body .widget.clearfix-desktop {
+    clear: none;
+  }
+  body .widget.clearfix-tablet {
+    clear: both;
+    float: none !important;
+  }
+}
+@media screen and (max-width: 1180px) and (orientation: landscape) {
+  body .extendedwopts-hide.extendedwopts-tablet {
+    display: none !important;
+  }
+  body .extendedwopts-show.extendedwopts-tablet {
+    display: block;
+  }
+  body .widget.clearfix-desktop {
+    clear: none;
+  }
+  body .widget.clearfix-tablet {
+    clear: both;
+    float: none !important;
+  }
+}
+@media screen and (max-width: 767px) and (orientation: Portrait) {
+  body .extendedwopts-hide.extendedwopts-tablet:not(.extendedwopts-mobile) {
+    display: block !important;
+  }
+  body .extendedwopts-show.extendedwopts-tablet:not(.extendedwopts-mobile) {
+    display: none !important;
+  }
+  body .extendedwopts-hide.extendedwopts-mobile {
+    display: none !important;
+  }
+  body .extendedwopts-show.extendedwopts-mobile {
+    display: block;
+  }
+  body .widget.clearfix-desktop,
+  body .widget.clearfix-tablet {
+    clear: none;
+  }
+  body .widget.clearfix-mobile {
+    clear: both;
+    float: none !important;
+  }
+}
+@media screen and (max-width: 991px) and (orientation: landscape) {
+  body .extendedwopts-hide.extendedwopts-tablet:not(.extendedwopts-mobile) {
+    display: block !important;
+  }
+  body .extendedwopts-show.extendedwopts-tablet:not(.extendedwopts-mobile) {
+    display: none !important;
+  }
+  body .extendedwopts-hide.extendedwopts-mobile {
+    display: none !important;
+  }
+  body .extendedwopts-show.extendedwopts-mobile {
+    display: block;
+  }
+  body .widget.clearfix-desktop,
+  body .widget.clearfix-tablet {
+    clear: none;
+  }
+  body .widget.clearfix-mobile {
+    clear: both;
+    float: none !important;
+  }
+}
+.panel-cell-style:after {
+  content: "";
+  display: block;
+  clear: both;
+  position: relative;
+}
