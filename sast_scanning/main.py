@@ -88,7 +88,7 @@ def normalize(text: str) -> str:
 # Tasks
 
 
-@dn.task(name="Read file")
+@dn.task(name="Read file")  # type: ignore[misc]
 async def read_file(file_path: pathlib.Path) -> rg.ContentImageUrl | str:
     logger.info(f"|- Reading file '{file_path}'")
 
@@ -110,15 +110,18 @@ class ScoredFunction(Protocol):
 def create_finding_scorer(challenge: Challenge) -> ScoredFunction:
     @dn.scorer(name="Score finding")  # type: ignore[misc]
     async def score_finding(finding: Finding) -> float:
+        # Step 1: Find matching vulnerabilities from manifest
         candidates: list[Vulnerability] = []
         for vuln in challenge.vulnerabilities:
             if finding.file_path.lstrip("/").lower() in str(vuln.file).lower():
                 candidates.append(vuln)
 
         if not candidates:
+            # No matching files, don't count this as a finding
             dn.log_metric("no_matching_files", 1)
             return 0.0
 
+        # Step 2: Score matches
         scores: list[tuple[int, float, bool]] = []
         for vuln in candidates:
             name_aliases = challenge.strings.get(vuln.name, [])
@@ -136,21 +139,21 @@ def create_finding_scorer(challenge: Challenge) -> ScoredFunction:
             total_score = (name_match * 3.0) + (function_match * 2.0) + (line_match * 1.0)
             scores.append((vuln.id, total_score, vuln.id in challenge.found))
 
-        # Find best match
+        # Step 3: Find best match
         if not scores:
             return 0.0
 
         best_id, best_score, is_duplicate = max(scores, key=lambda x: x[1])
 
-        # Mark as found and track coverage
+        # Step 4: Mark as found if not a duplicate
         if not is_duplicate:
             challenge.found.add(best_id)
-            dn.log_metric("coverage", len(challenge.found) / len(challenge.vulnerabilities))
-        else:
-            dn.log_metric("duplicates", 1)
-            return 0.0  # No points for duplicates
-
-        return best_score
+            coverage = len(challenge.found) / len(challenge.vulnerabilities)
+            dn.log_metric("coverage", coverage, mode="set", to="run")
+            dn.log_metric("valid_findings", 1, mode="count", to="run")
+            return best_score
+        dn.log_metric("duplicates", 1)
+        return 0.0  # No points for duplicates
 
     return cast(ScoredFunction, score_finding)
 
@@ -234,16 +237,16 @@ async def run_step_direct(
                 "function": finding.function,
                 "line_number": finding.line_number,
             },
+            label=f"{finding.name} in {finding.file_path}:{finding.line_number}",
             to="run",
         )
 
+        # Score the finding (metrics are tracked inside the scorer)
         await scorer(finding)
-        dn.log_metric(
-            "findings",
-            1,
-            mode="count",
-            to="run",
-        )
+
+    # Log the total findings count once at the end
+    for _ in findings:
+        dn.log_metric("raw_findings", 1, mode="count", to="run")
 
     if completions:
         logger.success("Task completed")
@@ -323,12 +326,14 @@ async def run_step_container(
                 "function": finding.function,
                 "line_number": finding.line_number,
             },
+            label=f"{finding.name} in {finding.file_path}:{finding.line_number}",
             to="run",
         )
 
-        # Score the finding
         await scorer(finding)
-        dn.log_metric("findings", 1, mode="count", to="run")
+
+    for _ in findings:
+        dn.log_metric("raw_findings", 1, mode="count", to="run")
 
     if completions:
         logger.success("Task completed")
@@ -406,6 +411,7 @@ async def run_direct(
     - The specific type of vulnerability
     - A clear description explaining the vulnerability and potential impact
     - The exact file, function name, and line number where the issue exists
+      (Note: Line numbers refer to absolute positions in the file, counting all lines including comments, imports, blank lines, etc. Count from line 1 at the top of the file.)
 
     {prompt_task_competion}
 
@@ -504,6 +510,7 @@ async def run_container(
     - The specific type of vulnerability
     - A clear description explaining the vulnerability and potential impact
     - The exact file, function name, and line number where the issue exists
+      (Note: Line numbers refer to absolute positions in the file, counting all lines including comments, imports, blank lines, etc. Count from line 1 at the top of the file.)
 
     {prompt_task_competion}
 

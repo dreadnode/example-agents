@@ -12,22 +12,22 @@
       name: sqli
       file: app.py
       function: models
-      lines: [52, 56]
+      lines: [50, 69]
     - id: 2
       name: sqli
       file: app.py
       function: sample
-      lines: [74, 78]
+      lines: [73, 88]
     - id: 3
       name: sqli
       file: app.py
       function: users
-      lines: [95, 104]
+      lines: [93, 119]
     - id: 4
       name: xss
       file: app.py
       function: greet
-      lines: [121, 125]
+      lines: [123, 129]
 
 - name: php-wordpress-plugin
   src: widget-options-4.0.7
