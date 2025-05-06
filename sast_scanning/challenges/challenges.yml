@@ -1,0 +1,46 @@
+- name: python-web-app
+  src: python-web-app
+  extensions: [py, txt]
+  strings:
+    xss:
+      - "cross-site script"
+      - "cross site"
+    sqli:
+      - "sql injection"
+  vulnerabilities:
+    - id: 1
+      name: sqli
+      file: app.py
+      function: models
+      lines: [50, 69]
+    - id: 2
+      name: sqli
+      file: app.py
+      function: sample
+      lines: [73, 88]
+    - id: 3
+      name: sqli
+      file: app.py
+      function: users
+      lines: [93, 119]
+    - id: 4
+      name: xss
+      file: app.py
+      function: greet
+      lines: [123, 129]
+
+- name: php-wordpress-plugin
+  src: widget-options-4.0.7
+  extensions: [php, md, txt]
+  strings:
+    eval:
+      - "unsafe eval"
+      - "rce"
+      - "remote code execution"
+      - "command injection"
+  vulnerabilities:
+    - id: 1
+      name: eval
+      file: includes/extras.php
+      function: widgetopts_safe_eval
+      lines: [498, 500]

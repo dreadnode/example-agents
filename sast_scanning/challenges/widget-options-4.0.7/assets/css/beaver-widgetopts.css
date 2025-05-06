@@ -1,0 +1,121 @@
+#fl-builder-settings-section-widgetopts-fields #fl-field-widgetopts-tabnav .fl-field-control{
+	padding: 0px;
+}
+.fl-builder-widgetopts-tab{
+	border-top: 1px solid #e6eaed;
+	border-bottom: 1px solid #e6eaed;
+	background: #f5f5f5;
+}
+.fl-builder-widgetopts-tab a{
+    display: inline-block;
+    margin: 0;
+    outline: none;
+    padding: 8px 10px;
+    color: #999 !important;
+}
+.fl-builder-widgetopts-tab a .dashicons{
+	font-size: 16px;
+}
+.fl-builder-widgetopts-tab a:first-child{
+	margin-left: 10px !important;
+}
+.fl-builder-widgetopts-tab a.widgetopts-s-active{
+	background: #fff;
+	color: #111 !important;
+	border-right: 1px solid #e6eaed;
+	border-left: 1px solid #e6eaed;
+	position: relative;
+	top: 1px;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section{
+	display: none;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section table{
+	margin: 0px !important;
+	width: 100% !important;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section table td:first-child{
+	padding-left: 0px !important;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section:nth-child(2){
+	display: block;
+}
+#fl-builder-settings-tab-widgetopts #fl-builder-settings-section-widgetopts-fields.fl-builder-settings-section{
+	display: block !important;
+	padding: 0px !important;
+	border-bottom: 0px;
+	background: transparent;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section{
+	border: 1px solid #dfdfdf;
+	border-top: 0px;
+	padding: 15px 10px;
+	background: #fff;
+}
+#fl-builder-settings-section-widgetopts-fields.fl-builder-settings-section{
+	margin-bottom: 0px;
+}
+.fl-builder-settings-section .fl-field-description{
+	margin-left: 10px !important;
+	opacity: 0.8;
+	font-size: 11px;
+}
+.fl-builder-settings-section .fl-field-description small{
+	display: block;
+	font-size: 11px;
+	padding: 0px 10px;
+}
+#fl-builder-settings-tab-widgetopts .fl-builder-settings-section textarea{
+	min-height: 90px;
+}
+.widgetopts-select2-l{
+	font-size: 10px;
+	color: #999;
+	font-style: italic;
+}
+.fl-builder-settings-section .select2-container--default .select2-selection--multiple, .fl-builder-settings .fl-builder-settings-section select, .fl-builder-settings .fl-builder-settings-section input[type="text"], .fl-builder-settings .fl-builder-settings-section textarea{
+	border: 1px solid #e6eaed !important;
+}
+
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro{
+	padding: 20px;
+}
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro ul{
+	margin-left: 20px;
+	padding:  0px;
+}
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro li{
+	list-style: none;
+}
+.fl-builder-settings-section#fl-builder-settings-section-widgetopts-upgrade{
+	background-color: #FFF1B8 !important;
+    color: #444;
+}
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro .widgetopts-unlock-features{
+	text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro .widgetopts-unlock-features .dashicons{
+	font-size: 26px;
+    padding-right: 6px;
+}
+.fl-builder-settings-section .extended-widget-opts-tabcontent-gopro .button-primary{
+	background: #0085ba;
+    border-color: #0073aa #006799 #006799;
+    color: #fff;
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 26px;
+    height: 28px;
+    margin: 0;
+    padding: 0 10px 1px;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
