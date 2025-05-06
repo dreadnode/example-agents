@@ -83,7 +83,7 @@ local files, Github repos, S3 buckets, and other cloud storage systems.
 
 ```bash
 # Local
-uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files 
+uv run -m sensitive_data_extraction --model <model> --path /path/to/local/files
 
 # S3
 uv run -m sensitive_data_extraction --model <model> --path s3://bucket
@@ -112,12 +112,22 @@ uv run -m sast_scanning --help
 
 The agent systematically examines codebases using either direct file access or an isolated container environment. It can:
 
-- Identify multiple vulnerability types including SQL injection, XSS, command injection, and more
 - Execute targeted analysis commands to search through source files
 - Report detailed findings with vulnerability location, type, and severity
 - Support various programming languages through configurable extensions
 - Operate in two modes: "direct" (filesystem access) or "container" (isolated analysis)
 - Challenges and vulnerability patterns are defined in YAML configuration files, allowing for flexible targeting of specific security issues across different codebases.
+
+### Metrics and Scoring
+
+The agent tracks several key metrics to evaluate performance:
+
+- **valid_findings**: Count of correctly identified vulnerabilities matching expected issues
+- **raw_findings**: Total number of potential vulnerabilities reported by the model
+- **coverage**: Percentage of known vulnerabilities successfully identified
+- **duplicates**: Count of repeatedly reported vulnerabilities
+
+Findings are scored using a weighted system that prioritizes matching the correct vulnerability name (3x), function (2x), and line location (1x) to balance semantic accuracy with positional precision.
 
 ```bash
 # Run in direct mode (default)
@@ -132,5 +142,3 @@ uv run -m sast_scanning --model <model> --mode container --challenge <challenge-
 # Customize analysis parameters
 uv run -m sast_scanning --model <model> --max-steps 50 --timeout 60
 ```
-
-The agent reports detailed metrics on vulnerability coverage and provides comprehensive findings to help security teams prioritize code fixes.
