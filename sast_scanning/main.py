@@ -183,6 +183,18 @@ async def run_step_direct(
         dn.log_metric("invalid_responses", 1)
         return pipeline
 
+    if findings or completions:
+        logger.info(f"Model response: {chat.last.content}")
+        dn.log_output(
+            "model_response",
+            {
+                "content": chat.last.content,
+                "findings_count": len(findings),
+                "step": len(chat.messages) // 2,
+            },
+            to="run",
+        )
+
     logger.info(
         f"|- {len(file_reads)} reads / {len(findings)} findings / {len(completions)} completions",
     )
@@ -268,6 +280,18 @@ async def run_step_container(
         dn.log_metric("invalid_responses", 1)
         return pipeline
 
+    if findings or completions:
+        logger.info(f"Model response: {chat.last.content}")
+        dn.log_output(
+            "model_response",
+            {
+                "content": chat.last.content,
+                "findings_count": len(findings),
+                "step": len(chat.messages) // 2,
+            },
+            to="run",
+        )
+
     logger.info(
         f"|- {len(executions)} executions / {len(findings)} findings / {len(completions)} completions",
     )
@@ -282,6 +306,9 @@ async def run_step_container(
 
     scorer = create_finding_scorer(challenge)
     for finding in findings:
+        logger.info(
+            f"Found vulnerability: {finding.name} in {finding.file_path}:{finding.line_number} ({finding.function})",
+        )
         dn.log_output(
             "vulnerability",
             {
