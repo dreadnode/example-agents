@@ -2,6 +2,7 @@ import asyncio
 import pathlib
 import typing as t
 from dataclasses import dataclass
+from typing import Protocol, cast
 
 import backoff
 import backoff.types
@@ -102,8 +103,12 @@ async def read_file(file_path: pathlib.Path) -> rg.ContentImageUrl | str:
         return rg.ContentImageUrl.from_file(file_path)
 
 
-def create_finding_scorer(challenge: Challenge):
-    @dn.scorer(name="Score finding")
+class ScoredFunction(Protocol):
+    async def __call__(self, finding: Finding) -> float: ...
+
+
+def create_finding_scorer(challenge: Challenge) -> ScoredFunction:
+    @dn.scorer(name="Score finding")  # type: ignore[misc]
     async def score_finding(finding: Finding) -> float:
         candidates: list[Vulnerability] = []
         for vuln in challenge.vulnerabilities:
@@ -147,10 +152,10 @@ def create_finding_scorer(challenge: Challenge):
 
         return best_score
 
-    return score_finding
+    return cast(ScoredFunction, score_finding)
 
 
-@dn.task(name="Run step (direct)")
+@dn.task(name="Run step (direct)")  # type: ignore[misc]
 async def run_step_direct(
     challenge: Challenge,
     pipeline: rg.ChatPipeline,
@@ -246,7 +251,7 @@ async def run_step_direct(
     return pipeline
 
 
-@dn.task(name="Run step (container)")
+@dn.task(name="Run step (container)")  # type: ignore[misc]
 async def run_step_container(
     challenge: Challenge,
     pipeline: rg.ChatPipeline,
@@ -635,8 +640,7 @@ class DreadnodeArgs:
     """Local directory to store data in"""
 
 
-# Replace @app.command() with @app.default
-@app.default
+@app.default  # type: ignore[misc]
 async def agent(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
     """Run the SAST vulnerability scanner on both applications."""
 
