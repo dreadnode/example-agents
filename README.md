@@ -7,13 +7,21 @@ This repo contains a variety of example agents to use with the Dreadnode platfor
 All examples share the same project and dependencies, you setup the virtual environment with uv:
 
 ```bash
-export UV_INDEX_DREADNODE_PYPI_PASSWORD=<platform-api-key>
-
 uv sync
 ```
 
-*`UV_INDEX_DREADNODE_PYPI_PASSWORD` is currently required to install the
-`dreadnode` package from the private PyPi repository*
+## Python Agent
+
+A basic agent with access to a dockerized Jupyter kernel to execute code safely.
+
+```bash
+uv run -m python_agent --help
+```
+
+- Provided a task (`--task`), begin a generation loop with access to the Jupyter kernel
+- The work directory (`--work-dir`) is mounted into the container, along with any other docker-style volumes (`--volumes`)
+- When finished, the agent markes the task as complete with a status and summary
+- The work directory is logged as an artifact for the run
 
 ## Dangerous Capabilities
 

@@ -2,6 +2,8 @@
 # Fair warning, this file is a mess on the part of .NET interop. Order matters here for imports.
 #
 
+import asyncio
+import functools
 import sys
 import typing as t
 from dataclasses import dataclass
@@ -38,8 +40,6 @@ from Mono.Cecil import AssemblyDefinition  # type: ignore [import-not-found] # n
 
 
 def _shorten_dotnet_name(name: str) -> str:
-    if " " not in name or "(" not in name:
-        return name
     return name.split(" ")[-1].split("(")[0]
 
 
@@ -138,12 +138,26 @@ class DotnetReversing:
 
     @cached_property
     def tools(self) -> list[t.Callable[..., t.Any]]:
+        def wrap(func: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]:
+            @rg.tool(catch=True, truncate=10_000)
+            @dn.task()
+            @functools.wraps(func)
+            async def wrapper(*args: t.Any, **kwargs: t.Any) -> t.Any:
+                # Use asyncio.to_thread to run the function in a separate thread
+                # and avoid blocking the event loop.
+                return await asyncio.to_thread(func, *args, **kwargs)
+
+            return wrapper
+
         return [
-            rg.tool(catch=True)(dn.task()(func))
+            wrap(func)
             for func in (
                 self.decompile_module,
                 self.decompile_type,
                 self.decompile_methods,
+                self.list_namespaces,
+                self.list_types_in_namespace,
+                self.list_methods_in_type,
                 self.list_types,
                 self.list_methods,
                 self.search_for_references,
@@ -194,15 +208,88 @@ class DotnetReversing:
         Decompile specific methods and return a dictionary with method names as keys and decompiled code as values.
         """
         logger.info(f"decompile_methods({path}, {method_names})")
-        flexible_method_names = [_shorten_dotnet_name(name) for name in method_names]
+        flexible_method_names = [_shorten_dotnet_name(name).lower() for name in method_names]
         path = self._resolve_path(path)
         assembly = AssemblyDefinition.ReadAssembly(path)
         methods: dict[str, str] = {}
         for module in assembly.Modules:
             for module_type in module.Types:
                 for method in module_type.Methods:
-                    if _shorten_dotnet_name(method.FullName) in flexible_method_names:
+                    method_name = _shorten_dotnet_name(method.FullName).lower()
+                    if method_name in flexible_method_names:
                         methods[method.FullName] = _decompile_token(path, method.MetadataToken)
+        return methods
+
+    def list_namespaces(self, path: t.Annotated[str, "The binary file path"]) -> list[str]:
+        """
+        List all namespaces in the assembly.
+        """
+        logger.info(f"list_namespaces({path})")
+        path = self._resolve_path(path)
+        assembly = AssemblyDefinition.ReadAssembly(path)
+
+        namespaces = set()
+        for module in assembly.Modules:
+            for module_type in module.Types:
+                if "." in module_type.FullName:
+                    # Get namespace part (everything before the last dot)
+                    namespace = ".".join(module_type.FullName.split(".")[:-1])
+                    namespaces.add(namespace)
+                else:
+                    # Handle types without namespace (add as root)
+                    namespaces.add("<root>")
+
+        return sorted(namespaces)
+
+    def list_types_in_namespace(
+        self,
+        path: t.Annotated[str, "The binary file path"],
+        namespace: t.Annotated[str, "The namespace to list types from"],
+    ) -> list[str]:
+        """
+        List all types in the specified namespace.
+        """
+        logger.info(f"list_types_in_namespace({path}, {namespace})")
+        path = self._resolve_path(path)
+        assembly = AssemblyDefinition.ReadAssembly(path)
+
+        types = []
+        for module in assembly.Modules:
+            for module_type in module.Types:
+                if namespace == "<root>":
+                    # Handle types without namespace
+                    if "." not in module_type.FullName or (
+                        module_type.FullName.count(".") == 1
+                        and module_type.FullName.endswith("Module")
+                    ):
+                        types.append(module_type.FullName)
+                elif module_type.FullName.startswith(f"{namespace}."):
+                    # Check if the type belongs directly to this namespace (not a sub-namespace)
+                    remainder = module_type.FullName[len(namespace) + 1 :]
+                    if "." not in remainder:
+                        types.append(module_type.FullName)
+
+        return types
+
+    def list_methods_in_type(
+        self,
+        path: t.Annotated[str, "The binary file path"],
+        type_name: t.Annotated[str, "The full type name"],
+    ) -> list[str]:
+        """
+        List all methods in the specified type.
+        """
+        logger.info(f"list_methods_in_type({path}, {type_name})")
+        path = self._resolve_path(path)
+        assembly = AssemblyDefinition.ReadAssembly(path)
+
+        methods = []
+        for module in assembly.Modules:
+            for module_type in module.Types:
+                if module_type.FullName == type_name:
+                    methods.extend([method.Name for method in module_type.Methods])
+                    break
+
         return methods
 
     def list_types(self, path: t.Annotated[str, "The binary file path"]) -> list[str]:
@@ -241,6 +328,42 @@ class DotnetReversing:
         path = self._resolve_path(path)
         assembly = AssemblyDefinition.ReadAssembly(path)
         return _find_references(assembly, search)
+
+    def search_by_name(
+        self,
+        path: t.Annotated[str, "The binary file path"],
+        search: t.Annotated[str, "Search string to match against types and methods"],
+    ) -> dict[str, list[str]]:
+        """
+        Search for types and methods in the assembly that match the search string.
+        This can be used to locate types and methods by name.
+        """
+        logger.info(f"search_by_name({path}, {search})")
+
+        results: dict[str, list[str]] = {
+            "types": [],
+            "methods": [],
+        }
+
+        path = self._resolve_path(path)
+        assembly = AssemblyDefinition.ReadAssembly(path)
+
+        search_lower = search.lower()
+
+        # Type search
+        for module in assembly.Modules:
+            for module_type in module.Types:
+                if search_lower in module_type.FullName.lower():
+                    results["types"].append(module_type.FullName)
+
+        # Method search
+        for module in assembly.Modules:
+            for module_type in module.Types:
+                for method in module_type.Methods:
+                    if search_lower in method.FullName.lower():
+                        results["methods"].append(method.FullName)
+
+        return results
 
     def get_call_flows_to_method(
         self,
