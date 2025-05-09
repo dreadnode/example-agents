@@ -562,7 +562,7 @@ wheels = [
 
 [[package]]
 name = "dreadnode"
-version = "1.0.0rc1"
+version = "1.0.0rc3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "coolname" },
@@ -570,12 +570,13 @@ dependencies = [
     { name = "fsspec", extra = ["s3"] },
     { name = "httpx" },
     { name = "logfire" },
+    { name = "pandas" },
     { name = "pydantic" },
     { name = "python-ulid" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/82/08999ce945235529df734da72574a20465b2755332bd870a8a94b133be83/dreadnode-1.0.0rc1.tar.gz", hash = "sha256:baae22ca6b82df694dfaff7cb1e468324adf5fbcbc939b10ec5c53b040f1012b", size = 41065 }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/f0/5cf211ff6519284456eddcb5dfa98851e5427fae305dabe0354b10d2563c/dreadnode-1.0.0rc3.tar.gz", hash = "sha256:548be8b321f7eccd1974b98a837872d6a4e1dc5fd30960158983859b42556a75", size = 41162 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/b8/f6be20c53661cec0f3e9112ebe5c36413a5d1b36fe79c4633d2236ff18fb/dreadnode-1.0.0rc1-py3-none-any.whl", hash = "sha256:c7ee62b2a817ca3a5c81fc1ac8f5ce9d64f56887955266bfce40cc1e0a123d5f", size = 47123 },
+    { url = "https://files.pythonhosted.org/packages/44/28/dbaaab468ff6c98f9bfc49d74903d943248c7c71920cc9a91821baaabb7b/dreadnode-1.0.0rc3-py3-none-any.whl", hash = "sha256:1cc1b08afc865a06722ceb6a9b2c8075ee39a437ccc92b2ab8de75faaa9b8f4f", size = 47163 },
 ]
 
 [[package]]
@@ -638,11 +639,11 @@ requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
     { name = "cyclopts", specifier = ">=3.12.0" },
     { name = "docker", specifier = ">=7.1.0" },
-    { name = "dreadnode", specifier = ">=1.0.0rc1" },
+    { name = "dreadnode", specifier = ">=1.0.0rc3" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "pythonnet", specifier = ">=3.0.5" },
-    { name = "rigging", specifier = ">=3.0.0rc3" },
+    { name = "rigging", specifier = ">=3.0.0rc4" },
     { name = "ruff", specifier = ">=0.11.5" },
     { name = "universal-pathlib", specifier = ">=0.2.6" },
 ]
@@ -2371,7 +2372,7 @@ wheels = [
 
 [[package]]
 name = "rigging"
-version = "3.0.0rc3"
+version = "3.0.0rc4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -2391,9 +2392,9 @@ dependencies = [
     { name = "ruamel-yaml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a4/ff/b9c974c78641ef4499006d1be2d0b8b942f9d0c42ce910450091e0504b24/rigging-3.0.0rc3.tar.gz", hash = "sha256:eb34614e6c324aab22f36647fdfe6435fc849589d4df8daa711d36eaf7baee67", size = 82890 }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/54/9cbe4930ebd0d87a2b106b06899853f2bfe70dabe8b3d8eeeaac0f0dba25/rigging-3.0.0rc4.tar.gz", hash = "sha256:2fd7813e44cdb69c7cb3890b761bb81d419281ef95a05e18b15092ae0ade4b9f", size = 84666 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/cc/81ea76a6928d35f48970a2bf443c36df81d309a6e51a5d542c5bd1777511/rigging-3.0.0rc3-py3-none-any.whl", hash = "sha256:5fad0d97fd7753a539a34071c6eb2b189a70ee1c149ce57e5ce05a74f5f68c22", size = 94365 },
+    { url = "https://files.pythonhosted.org/packages/c5/7f/8020126075983cc82fe673b96571addf3c998a0926a70a56d40fecbb4c6c/rigging-3.0.0rc4-py3-none-any.whl", hash = "sha256:8dc25134cdf0a0b6fee909c00318d6cc0907cbbda85a3ca8a42323573a2bd2ec", size = 96225 },
 ]
 
 [[package]]
