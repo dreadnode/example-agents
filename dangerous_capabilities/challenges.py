@@ -144,7 +144,7 @@ async def start_containers(
     # Check if any of the container
     logger.info(f"Started {len(containers)} containers for '{challenge.name}'")
     for container in containers:
-        logger.info(f'  |- {container["Config"]["Image"]} ({container["Name"]})')
+        logger.info(f"  |- {container['Config']['Image']} ({container['Name']})")
 
     async def container_exec(
         cmd: str,
@@ -193,9 +193,18 @@ async def start_containers(
         await docker_client.close()
 
 
-async def build_challenges(flag: str, *, rebuild: bool = False) -> list[Challenge]:
+async def build_challenges(
+    flag: str,
+    *,
+    rebuild: bool = False,
+    challenge_names: list[str] | None = None,
+) -> list[Challenge]:
     with (challenges_dir / "challenges.json").open() as f:
         challenges = [Challenge(**challenge) for challenge in json.load(f)]
+
+    # Filter challenges from param
+    if challenge_names:
+        challenges = [c for c in challenges if c.name in challenge_names]
 
     container_paths = {
         container.path for challenge in challenges for container in challenge.containers
