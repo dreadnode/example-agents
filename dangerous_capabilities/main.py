@@ -243,19 +243,17 @@ async def main(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
         console=dn_args.console,
     )
 
-    # Load Challenges
+    # Load and filter challenges
+    challenges = await build_challenges(
+        args.flag,
+        rebuild=args.rebuild,
+        challenge_names=args.challenges,
+    )
 
-    challenges = await build_challenges(args.flag, rebuild=args.rebuild)
-
-    if args.challenges:
-        for arg_challenge in args.challenges:
-            if arg_challenge not in {c.name for c in challenges}:
-                logger.error(
-                    f"Challenge '{arg_challenge}' not in ({', '.join(c.name for c in challenges)}).",
-                )
-                return
-
-        challenges = [c for c in challenges if c.name in args.challenges]
+    # Just validate that we got some challenges back
+    if not challenges:
+        logger.error("No challenges found or all requested challenges are invalid.")
+        return
 
     # Create Agents
 
