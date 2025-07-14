@@ -250,6 +250,7 @@ class PythonKernel:
         try:
             await self.client.images.inspect(self.image)
         except aiodocker.exceptions.DockerError:
+            logger.info(f"Pulling {self.image} ...")
             await self.client.images.pull(self.image)
 
         # Create and start container

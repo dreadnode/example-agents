@@ -10,6 +10,25 @@ All examples share the same project and dependencies, you setup the virtual envi
 uv sync
 ```
 
+### Passing Models
+
+For all agents, LLMs are usually specified with a `--model` argument, which is passed directly to our [Rigging](https://github.com/dreadnode/rigging) library.
+You can read details about different ways to connect to providers, self-hosted servers, or even in-process local models [in the docs](https://docs.dreadnode.io/open-source/rigging/topics/generators)
+
+Usually, the obvious identifier works out of the box:
+
+```
+gpt-4.1
+claude-4-sonnet-latest
+ollama/llama3-70b
+```
+
+- You can pass API keys by setting the associated env var (`OPENAI_API_KEY`) or by adding `,api_key=...` to your model string.
+- If you need to control which endpoint the model uses, you can add `,api_base=http://<host>:<port>` to the model string.
+- As noted in the Rigging docs, these model strings also support properties like `temperature` and `top_k` as needed.
+
+Rigging uses LiteLLM underneath more most LLMs, and you can use [their docs](https://docs.litellm.ai/docs/providers) to find edge cases for specific providers.
+
 ## Python Agent
 
 A basic agent with access to a dockerized Jupyter kernel to execute code safely.
@@ -69,8 +88,9 @@ You can also specify the path as a Nuget package identifier and pass `--nuget` t
 will download the package, extract the binaries, and run the same analysis as above.
 
 ```bash
-# Local
-uv run -m dotnet_reversing --model <model> --path /path/to/local/binaries
+# Local (with provided example binaries)
+uv run -m dotnet_reversing --model <model> --path dotnet_reversing/example_binaries/flag_protocol
+uv run -m dotnet_reversing --model <model> --path dotnet_reversing/example_binaries/harmony
 
 # Nuget
 uv run -m dotnet_reversing --model <model> --path <nuget-package-id> --nuget

@@ -124,10 +124,15 @@ class DotnetReversing:
             raise ValueError(f"Base path does not exist: {base_path}")
 
         binaries: list[str] = []
-        for file_path in base_path.rglob(pattern):
-            rel_path = file_path.relative_to(base_path)
-            if not any(ex in str(rel_path) for ex in exclude):
-                binaries.append(str(rel_path))
+        if base_path.is_file():
+            file_path = base_path.resolve()
+            base_path = base_path.parent
+            binaries = [str(file_path.relative_to(base_path))]
+        else:
+            for file_path in base_path.rglob(pattern):
+                rel_path = file_path.relative_to(base_path)
+                if not any(ex in str(rel_path) for ex in exclude):
+                    binaries.append(str(rel_path))
 
         if not binaries:
             raise ValueError(
