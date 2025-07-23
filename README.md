@@ -1,8 +1,57 @@
-# Example Agents
+# Autonomous Agents Collection
 
-This repo contains a variety of example agents to use with the Dreadnode platform.
+This repository contains a collection of specialized, autonomous AI agents designed for various complex tasks. Each agent leverages Large Language Models (LLMs) combined with a specific set of tools to achieve its goals in a structured and observable manner. The agents are built using the [Rigging](https://github.com/dreadnode/rigging) and [Dreadnode](https://github.com/dreadnode/dreadnode-python) libraries for robust interaction and observability.
 
-## Setup
+## Agent Summary
+
+The following table provides a high-level overview and comparison of the agents available in this collection.
+
+| Agent                | Description                                                                                    | Primary Use Case                                                   | Environment               | Input Method                                                | Key Tools                       |
+| :------------------- | :--------------------------------------------------------------------------------------------- | :----------------------------------------------------------------- | :------------------------ | :---------------------------------------------------------- | :------------------------------ |
+| **Dotnet Reversing** | Reverses and analyzes .NET binaries for vulnerabilities using an LLM.                          | Security analysis of .NET applications.                            | Python                    | Local .NET DLL/EXE files or NuGet package IDs.              | `dnlib`, Rigging, Dreadnode     |
+| **Python Agent**     | Executes Python code in a sandboxed Docker environment to perform general tasks.               | General-purpose code execution, data analysis, automation.         | Python, Docker            | Natural language task, Docker image, volume mounts.         | Docker, Jupyter Kernel, Rigging |
+| **Sast Scanning**    | Benchmarks LLM performance on SAST by running them against code with known vulnerabilities.    | Evaluating and comparing LLMs for security code review.            | Python, Docker (optional) | Pre-defined code challenges from a local directory.         | Rigging, LiteLLM, Dreadnode     |
+| **Sensitive Data**   | Scans various local or remote file systems (e.g., local, S3, GitHub) for sensitive data leaks. | Data governance and security auditing for exposed credentials/PII. | Python, `fsspec`          | `fsspec`-compatible URI (e.g., `s3://...`, `github://...`). | `fsspec`, Rigging, Dreadnode    |
+
+---
+
+## Agents
+
+Below are brief descriptions of each agent with a link to their detailed README files.
+
+### 1. Dotnet Reversing Agent
+
+This agent is designed to perform reverse engineering of .NET binaries. It can decompile .NET assemblies and use an LLM to analyze the resulting source code based on a user-defined task, such as "Find all critical security vulnerabilities."
+
+&gt; **[View Detailed README for Dotnet Reversing](./dotnet-reversing/README.md)**
+
+### 2. Python Agent
+
+A general-purpose agent that provides a sandboxed Jupyter environment inside a Docker container. It can execute Python code to accomplish a wide range of programmatic tasks, from data analysis to file manipulation, based on a natural language prompt.
+
+&gt; **[View Detailed README for Python Agent](./python_agent/README.md)**
+
+### 3. Sast Scanning Agent
+
+This agent is a specialized framework for evaluating the security analysis capabilities of LLMs. It runs "challenges" where the model must find known, predefined vulnerabilities in a codebase. The agent scores the model's performance, providing a quantitative way to benchmark different models for SAST.
+
+&gt; **[View Detailed README for Sast Scanning](./sast_scanning/README.md)**
+
+### 4. Sensitive Data Extraction Agent
+
+An autonomous agent that explores and analyzes file systems to find and report sensitive data like credentials, API keys, and personal information. Leveraging `fsspec`, it can operate on local files, cloud storage (AWS S3, GCS), and remote repositories (GitHub).
+
+&gt; **[View Detailed README for Sensitive Data Extraction](./sensitive_data_extraction/README.md)**
+
+## General Usage
+
+While each agent has its own specific command-line arguments, they share a common setup:
+
+1.  **Installation**: Each agent is a Python application. Dependencies can be installed via `pip`.
+2.  **LLM Configuration**: The agents use `litellm` to connect to various LLMs. You must configure the appropriate environment variables for the model you intend to use (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
+3.  **Observability**: To enable detailed logging, tracing, and metrics, you can configure the agents to connect to a [Dreadnode](https://dreadnode.io) server by providing a server URL and token.
+
+### Setup
 
 All examples share the same project and dependencies, you setup the virtual environment with uv:
 
@@ -127,6 +176,7 @@ uv run -m sensitive_data_extraction --model <model> --path github://owner:repo@/
 ```
 
 Check out the their docs for more options:
+
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
 - https://filesystem-spec.readthedocs.io/en/latest/api.html#other-known-implementations
 
