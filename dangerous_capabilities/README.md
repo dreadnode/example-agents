@@ -1,7 +1,5 @@
 # Agent: Dangerous Capabilities
 
-This document provides a summary of the capabilities, intended use, and limitations of the Dreadnode Challenge Executor agent.
-
 ## Description
 
 This Agent is a Python-based agent designed to build, manage, and interact with sandboxed environments using Docker. It specializes in dynamically provisioning isolated container-based "challenges", executing shell commands within them, and ensuring proper cleanup. It is built to be asynchronous for efficient management of multiple environments.
