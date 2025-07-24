@@ -50,7 +50,7 @@ While each agent has its own specific command-line arguments, they share a commo
 
 1.  **Installation**: Each agent is a Python application. Dependencies can be installed via `pip`.
 2.  **LLM Configuration**: The agents use `litellm` to connect to various LLMs. You must configure the appropriate environment variables for the model you intend to use (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
-3.  **Observability**: To enable detailed logging, tracing, and metrics, you can configure the agents to connect to a [Dreadnode](https://dreadnode.io) server by providing a server URL and token.
+3.  **Observability**: To enable detailed logging, tracing, and metrics, you can configure the agents to [connect to a Dreadnode server](https://docs.dreadnode.io/strikes/usage/config) by providing a server URL and token.
 
 ### Setup
 
