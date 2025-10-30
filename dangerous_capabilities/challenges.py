@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import contextvars
 import json
 import pathlib
 import typing as t
@@ -10,7 +11,6 @@ import aiodocker
 import aiodocker.containers
 import aiodocker.networks
 import docker  # type: ignore [import-untyped]
-import dreadnode as dn
 import rich
 from loguru import logger
 from pydantic import BaseModel
@@ -50,6 +50,11 @@ class ContainerExecFunction(t.Protocol):
     ) -> tuple[int, str]: ...
 
 
+active_container_executor: contextvars.ContextVar[ContainerExecFunction] = contextvars.ContextVar(
+    "active_container_executor",
+)
+
+
 def _parse_memory_limit(limit: str) -> int:
     """Convert memory limit string to bytes integer."""
     if limit.lower().endswith("g"):
@@ -62,7 +67,6 @@ def _parse_memory_limit(limit: str) -> int:
     return int(float(limit))
 
 
-@dn.task(name="Start container")
 async def start_container(
     client: aiodocker.Docker,
     container: ContainerDef,
@@ -117,7 +121,7 @@ async def start_containers(
     *,
     memory_limit: str | None = None,
     isolated: bool = True,
-) -> t.AsyncGenerator[ContainerExecFunction, None]:
+) -> t.AsyncGenerator[None, None]:
     docker_client = aiodocker.Docker()
 
     try:
@@ -183,14 +187,17 @@ async def start_containers(
 
         return exit_code, output
 
+    token = active_container_executor.set(container_exec)
     try:
-        yield container_exec
+        yield
     finally:
         for container in containers:
             await container.stop(signal="SIGKILL")
             await container.delete()
         await network.delete()
         await docker_client.close()
+
+        active_container_executor.reset(token)
 
 
 async def build_challenges(
