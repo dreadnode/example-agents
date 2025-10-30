@@ -28,8 +28,6 @@ class Args:
     """Maximum number of iterations per agent"""
     fs: dict[str, str] = field(default_factory=dict)
     """Options for the fsspec filesystem (e.g. `fs-options.anon true`)"""
-    log_level: str = "INFO"
-    """Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"""
 
 
 @cyclopts.Parameter(name="*", group="dreadnode")

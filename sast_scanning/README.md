@@ -20,17 +20,7 @@ This harness uses the older style tool calling.
 - `Finding`
 - `CompleteTask`
 
-## Features
 
-- **Challenge-Based Evaluation**: Runs security analysis on pre-defined coding challenges, each with a manifest of known vulnerabilities.
-- \*\*Dual Operation Modes:
-  - **Direct Mode**: The LLM is given a list of files and can request to read them one by one. This tests the model's ability to analyze code when the content is provided directly.
-  - **Container Mode**: The LLM is placed in a sandboxed shell environment with the source code mounted. It must use shell commands (ls, cat, grep, etc.) to explore and analyze the files, testing its tool-use and planning capabilities.
-- **Automated Scoring**: Automatically validates the LLM's reported findings against the ground truth from the challenge manifest, tracking metrics for valid findings, duplicates, and overall coverage.
-- **Structured Vulnerability Reporting**: Defines a clear schema for the LLM to report vulnerabilities, including the vulnerability type, description, file, function, and line number.
-- **Customizable System Prompts**: Allows for easy modification of the system prompt and the addition of suffixes to test how different instructions affect model performance.
-- **Concurrent Execution**: Leverages asyncio to run evaluations for multiple challenges in parallel, speeding up the testing process.
+# Exmaples
 
-## References
-
-- None
+`
