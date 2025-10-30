@@ -18,8 +18,6 @@ from rich.console import Console
 
 console = Console()
 
-if t.TYPE_CHECKING:
-    from loguru import Record as LogRecord
 
 # CLI
 
@@ -56,16 +54,6 @@ class DreadnodeArgs:
     """Project name"""
     console: t.Annotated[bool, cyclopts.Parameter(negative=False)] = False
     """Show span information in the console"""
-
-
-def log_formatter(record: "LogRecord") -> str:
-    return "".join(
-        (
-            "<green>{time:HH:mm:ss.SSS}</green> | ",
-            "<dim>{extra[prefix]}</dim> " if record["extra"].get("prefix") else "",
-            "<level>{message}</level>\n",
-        ),
-    )
 
 
 @tool()
