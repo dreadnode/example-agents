@@ -6,6 +6,7 @@ import uuid
 from dataclasses import field
 from functools import cached_property
 from pathlib import Path
+from typing import Any, Optional
 
 import aiodocker
 import aiodocker.containers
@@ -14,8 +15,10 @@ import aiohttp
 import dreadnode as dn
 import rigging as rg
 import tenacity
+from dreadnode.agent.tools import Toolset, tool_method
+from dreadnode.meta import Config
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 # Helpers
 
@@ -175,31 +178,40 @@ class PythonKernelStartError(Exception):
 # Main class
 
 
-class PythonKernel:
+class PythonKernel(Toolset):
     """A Python kernel for executing code."""
 
-    def __init__(
-        self,
-        image: str = "jupyter/datascience-notebook:latest",
-        *,
-        memory_limit: str = "4g",
-        kernel_name: str = "python3",
-        work_dir: Path | str | None = None,
-        volumes: list[str] | None = None,
-    ) -> None:
-        """Create a python kernel."""
-        self.image = image
-        self.memory_limit = memory_limit
-        self.kernel_name = kernel_name
-        self.volumes = volumes or []
+    # Public configuration fields
+    image: str = Config(default="jupyter/datascience-notebook:latest", expose_as=str)
+    memory_limit: str = Config(default="4g", expose_as=str)
+    kernel_name: str = Config(default="python3", expose_as=str)
+    work_dir: Path | str | None = Config(default=None, expose_as=Path | str | None)
+    volumes: list[str] | None = Config(default=None, expose_as=list[str] | None)
 
-        self._token = uuid.uuid4().hex
+    # Private instance attributes
+    _token: str = PrivateAttr(default_factory=lambda: uuid.uuid4().hex)
+    _client: Optional["aiodocker.Docker"] = PrivateAttr(default=None)
+    _container: Optional["aiodocker.containers.DockerContainer"] = PrivateAttr(default=None)
+    _work_dir: Path = PrivateAttr()
+    _kernel_id: str | None = PrivateAttr(default=None)
+    _base_url: str | None = PrivateAttr(default=None)
 
-        self._client: aiodocker.Docker | None = None
-        self._container: aiodocker.containers.DockerContainer | None = None
-        self._work_dir = Path(work_dir or f".work/{uuid.uuid4().hex[:8]}")
-        self._kernel_id: str | None = None
-        self._base_url: str | None = None
+    def model_post_init(self, __context: Any) -> None:
+        """
+        Post-initialization to set up the work directory and volumes
+        after the model's public fields have been populated.
+        """
+        # Initialize _work_dir based on the value of the public work_dir field.
+        if self.work_dir:
+            self._work_dir = Path(self.work_dir)
+        else:
+            self.work_dir = Path(f".work/{uuid.uuid4().hex[:8]}")
+            self._work_dir = self.work_dir
+
+        self._work_dir.mkdir(parents=True, exist_ok=True)
+
+        if self.volumes is None:
+            self.volumes = []
 
     @property
     def base_url(self) -> str:
@@ -228,10 +240,6 @@ class PythonKernel:
         if not self._container:
             raise PythonKernelNotRunningError
         return self._container
-
-    @property
-    def work_dir(self) -> Path:
-        return self._work_dir
 
     @cached_property
     def tools(self) -> list[t.Callable[..., t.Any]]:
@@ -263,7 +271,10 @@ class PythonKernel:
                 "PortBindings": {
                     "8888/tcp": [{"HostPort": "0"}],  # Let Docker choose a port
                 },
-                "Binds": [f"{self._work_dir.absolute()!s}:/home/jovyan/work", *self.volumes],
+                "Binds": [
+                    f"{self._work_dir.absolute()!s}:/home/jovyan/work",
+                    *(self.volumes or []),
+                ],
             },
             "Env": [
                 f"JUPYTER_TOKEN={self._token}",
@@ -631,6 +642,7 @@ class PythonKernel:
 
         return notebook
 
+    @tool_method()
     async def execute_code(self, code: str) -> str:
         """
         Execute Python code in the jupyter kernel and return the output.
@@ -654,10 +666,12 @@ class PythonKernel:
 
         return t.cast("KernelState", kernel_info["execution_state"])
 
+    @tool_method()
     async def busy(self) -> bool:
         """Check if the kernel is busy executing code."""
         return await self.get_kernel_state() == "busy"
 
+    @tool_method()
     async def interrupt(self) -> None:
         """Interrupt the kernel."""
         if not self._kernel_id:
@@ -674,6 +688,7 @@ class PythonKernel:
 
         logger.debug(f"Kernel {self._kernel_id} interrupted")
 
+    @tool_method()
     async def restart(self) -> None:
         """Restart the kernel."""
         if not self._kernel_id:
