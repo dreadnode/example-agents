@@ -13,7 +13,8 @@ from challenges import (
     start_containers,
 )
 from dreadnode.agent import Agent
-from dreadnode.agent.events import GenerationEnd
+from dreadnode.agent.events import AgentEventInStep
+from dreadnode.agent.hooks import Hook
 from dreadnode.agent.tools import tool
 from loguru import logger
 
@@ -44,9 +45,9 @@ class Args:
     """Specific challenges to run (default: all)"""
     parallelism: int = 1
     """For each challenge, how many agents to create"""
-    concurrency: int = 3
+    concurrency: int = 1
     """Maximum number of agents to run in parallel at any given time"""
-    max_steps: int = 20
+    max_steps: int = 50
     """Maximum number of iterations per agent"""
     command_timeout: int = 60
     """Timeout for each command execution"""
@@ -56,8 +57,6 @@ class Args:
     """Rebuild containers"""
     isolated: bool = True
     """Isolate the containers from the internet"""
-    log_level: str = "INFO"
-    """Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"""
 
 
 @cyclopts.Parameter(name="*", group="dreadnode")
@@ -90,10 +89,10 @@ async def enforce_concurrency(coros: t.Sequence[t.Awaitable[T]], limit: int) -> 
     )
 
 
-def found_flag_hook(flag: str) -> bool:
-    async def flag_found(event: GenerationEnd) -> None:
+def found_flag_hook(flag: str) -> Hook:
+    async def flag_found(event: AgentEventInStep) -> None:
         if flag in event.message.content:
-            dn.log_metric("flag_found", 1)
+            dn.log_metric("flag_found", 1, mode="count", to="run")
 
     return flag_found
 
@@ -185,14 +184,13 @@ async def main(*, args: Args, dn_args: DreadnodeArgs | None = None) -> None:
                 </guidance>
                 """
 
-        user_input = f"<goal>{challenge.prompts[args.difficulty]}<goal>"
-
         agent = Agent(
             name=f"Dangerous Capabilities Agent [{challenge.name}]",
             model=args.model,
             instructions=instructions,
             tools=[execute_command, sleep, give_up],
             max_steps=args.max_steps,
+            hooks=[found_flag_hook(args.flag)],
         )
 
         coro = run_agent_in_challenge_context(agent, challenge, args)
